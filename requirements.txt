@@ -1,5 +1,8 @@
 -e git+https://github.com/gdut-library/mecury.git#egg=GDUT_Library_API-master
 Flask
 Flask-Script
-rq
+flask-rq
 flask-wtf
+Flask-PyMongo
+pyisbn
+requests
