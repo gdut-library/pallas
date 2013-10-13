@@ -2,11 +2,13 @@
 
 from flask import Blueprint
 from flask import render_template, session, request, redirect
+from flask.ext.rq import get_queue
 
 from pallas.forms.user import LoginForm
 from pallas.utils import LoginRequired
+from pallas.tasks import sync_user
 
-app = Blueprint('user', __name__)
+app = Blueprint('user', __name__, template_folder='../templates')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -25,3 +27,14 @@ def login():
 def logout():
     session.pop('token')
     return redirect('/')
+
+
+@app.route('/sync', methods=['GET', 'POST'])
+@LoginRequired()
+def sync():
+    form = LoginForm()
+    if form.validate_login():
+        job = get_queue('user').enqueue(sync_user, form.cardno.data,
+                                        form.password.data)
+        return job.key
+    return render_template('user/sync.html', form=form)

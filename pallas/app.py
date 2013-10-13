@@ -10,6 +10,7 @@ def build(**settings):
     app.config.update(settings)
 
     register_mongo(app)
+    register_rq(app)
     register_blueprint(app)
     register_logging(app)
 
@@ -36,5 +37,13 @@ def register_mongo(app):
 
     mongo = PyMongo(app)
     app.mongo = mongo
+
+    return app
+
+
+def register_rq(app):
+    from flask.ext.rq import RQ
+
+    RQ(app)
 
     return app

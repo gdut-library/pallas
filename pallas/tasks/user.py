@@ -1,6 +1,7 @@
 #coding: utf-8
 
 from flask import current_app
+from flask.ext.rq import get_queue
 
 import api
 
@@ -17,13 +18,13 @@ def sync_user(cardno, password):
         record = record['details']
         return {
             'title': record['name'],
-            'isbn': record['isbn'],
+            'isbn': str(record['isbn'].strip()),
             'ctrlno': record['ctrlno'],
             'locations': record['locations'][0]['location']
         }
 
     app = build()
-    with app.app_contect():
+    with app.app_context():
 
         me = api.Me()
         token = me.login(cardno, password).values()[0]
@@ -34,7 +35,11 @@ def sync_user(cardno, password):
         current_app.mongo.db.users.update({'cardno': personal['cardno']},
                                           personal, upsert=True)
 
+        book_jobs = []
         for book in personal['history']:
             isbn = parse_isbn(book['isbn'])
-            if not current_app.mongo.db.books.find(isbn):
-                sync_book(isbn)
+            if not current_app.mongo.db.books.find(isbn).count():
+                job = get_queue('books').enqueue(sync_book, isbn)
+                book_jobs.append(job.key)
+
+        return book_jobs
