@@ -17,3 +17,5 @@ def sync_book(isbn):
         app = build()
         with app.app_context():
             current_app.mongo.db.books.update(isbn, r.json(), upsert=True)
+        return True
+    return False

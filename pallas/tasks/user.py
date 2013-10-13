@@ -40,6 +40,6 @@ def sync_user(cardno, password):
             isbn = parse_isbn(book['isbn'])
             if not current_app.mongo.db.books.find(isbn).count():
                 job = get_queue('books').enqueue(sync_book, isbn)
-                book_jobs.append(job.key)
+                book_jobs.append(job.id)
 
         return book_jobs

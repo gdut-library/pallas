@@ -30,11 +30,11 @@ def logout():
 
 
 @app.route('/sync', methods=['GET', 'POST'])
-@LoginRequired()
+@LoginRequired('/user/sync')
 def sync():
     form = LoginForm()
     if form.validate_login():
         job = get_queue('user').enqueue(sync_user, form.cardno.data,
                                         form.password.data)
-        return job.key
+        return job.id
     return render_template('user/sync.html', form=form)
