@@ -35,3 +35,9 @@ LOGGING_CONFIG = {
     'incremental': False,
     'version': 1
 }
+
+TASKS = {
+    'user': {
+        'update_interval': 120
+    }
+}

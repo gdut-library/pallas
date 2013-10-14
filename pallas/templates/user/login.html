@@ -5,7 +5,7 @@
     <title>login</title>
 </head>
 <body>
-    <form action="{{ url_for('user.login') }}" method="POST">
+    <form action="{{ url_for('user.login', next=next) }}" method="POST">
         {{ form.hidden_tag() }}
         {% if form.error %}
         {{ form.error }}
