@@ -76,9 +76,6 @@ def calculate_keywords(books):
 
 def generate_report(cardno, password):
     '''生成报表'''
-
-    raise Exception
-
     library_url = lambda x: LIBRARY_URL + 'bookinfo.aspx?ctrlno=' + x
     search_list = lambda l, cond: next((x for x in l if cond(x)), None)
     remove_none = lambda l: filter(None, l)
