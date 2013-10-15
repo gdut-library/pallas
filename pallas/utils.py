@@ -10,7 +10,7 @@ def parse_isbn(isbn):
     :param isbn: 原始的 isbn
     '''
     try:
-        isbn_a = pyisbn.convert(isbn)
+        isbn_a = pyisbn.convert(str(isbn))
         isbn_b = pyisbn.convert(isbn_a)
 
         result = {}
