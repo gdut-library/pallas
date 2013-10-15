@@ -10,6 +10,8 @@ from api.base import LIBRARY_URL
 from pallas.app import build
 from pallas.utils import parse_isbn
 
+from .user import sync_user
+
 
 __all__ = ['generate_report']
 
@@ -72,7 +74,7 @@ def calculate_keywords(books):
     return result
 
 
-def generate_report(cardno):
+def generate_report(cardno, password):
     '''生成报表'''
     library_url = lambda x: LIBRARY_URL + 'bookinfo.aspx?ctrlno=' + x
     search_list = lambda l, cond: next((x for x in l if cond(x)), None)
@@ -102,11 +104,9 @@ def generate_report(cardno):
             'cardno': cardno
         }
 
-        user = current_app.mongo.db.users.find_one({'cardno': cardno})
-        if not user:
-            # TODO should raise fail here
-            job.meta['progress'] = -1.0
-            return
+        # 更新用户信息
+        user = sync_user(cardno, password)
+        job.meta['progress'] = 0.5
 
         # 获取书籍列表
         logger.info('fetching books')
@@ -117,7 +117,7 @@ def generate_report(cardno):
         history = get_book(get_isbn(user['history']))
         reading = get_book(get_isbn(user['reading']))
         all_books = history + reading
-        job.meta['progress'] = 0.3
+        job.meta['progress'] = 0.7
 
         # 阅读记录
         logger.info('generate reading record')
@@ -125,7 +125,7 @@ def generate_report(cardno):
                                          for i in user['history']])
         report['reading'] = remove_none([_reading(i, reading)
                                          for i in user['reading']])
-        job.meta['progress'] = 0.5
+        job.meta['progress'] = 0.8
 
         # 关键字和 tag
         logger.info('generate keywords & tags')

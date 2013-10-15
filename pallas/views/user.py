@@ -5,7 +5,7 @@ from flask import (Blueprint, current_app, render_template, session, request,
 from flask.ext.rq import get_queue
 
 from pallas.forms.user import LoginForm
-from pallas.tasks import sync_user
+from pallas.tasks import generate_report
 from pallas.helpers.user import LoginRequired, check_login, api_login_required
 from pallas.helpers.job import (get_current_job_or_404, get_next_job_time,
                                 is_job_performable)
@@ -50,7 +50,7 @@ def sync():
     form = LoginForm()
     if form.validate_login():
         cardno, password = form.cardno.data, form.password.data
-        job = get_queue('user').enqueue(sync_user, cardno, password)
+        job = get_queue('user').enqueue(generate_report, cardno, password)
         session['sync_job'] = job.id
         return redirect(url_for('.sync_progress'))
     return render_template('user/sync.html', form=form)

@@ -2,3 +2,4 @@
 
 from .user import *
 from .book import *
+from .report import *
