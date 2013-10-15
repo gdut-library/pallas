@@ -15,7 +15,7 @@ from .book import sync_book
 
 __all__ = ['sync_user']
 
-logger = logging.getLogger('app')
+logger = logging.getLogger('tasks')
 
 
 def sync_user(cardno, password):

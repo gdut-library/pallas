@@ -16,7 +16,7 @@ from .user import sync_user
 __all__ = ['generate_report']
 
 
-logger = logging.getLogger('app')
+logger = logging.getLogger('tasks')
 
 
 def calculate_tags(books):

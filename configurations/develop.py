@@ -18,9 +18,14 @@ LOGGING_CONFIG = {
             'class': 'logging.StreamHandler',
             'formatter': 'brief'
         },
-        'logfile': {
+        'app.log': {
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.abspath('logs/app.debug.log'),
+            'formatter': 'brief'
+        },
+        'tasks.log': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.abspath('logs/tasks.debug.log'),
             'formatter': 'brief'
         }
     },
@@ -28,7 +33,12 @@ LOGGING_CONFIG = {
         'app': {
             'propagate': True,
             'level': 'DEBUG',
-            'handlers': ['console', 'logfile']
+            'handlers': ['console', 'app.log']
+        },
+        'tasks': {
+            'propagate': True,
+            'level': 'DEBUG',
+            'handlers': ['console', 'tasks.log']
         }
     },
     'disable_existing_loggers': True,
