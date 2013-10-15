@@ -7,8 +7,8 @@ from flask.ext.rq import get_queue
 from pallas.forms.user import LoginForm
 from pallas.tasks import generate_report
 from pallas.helpers.user import LoginRequired, check_login, api_login_required
-from pallas.helpers.job import (get_current_job_or_404, get_next_job_time,
-                                is_job_performable)
+from pallas.helpers.job import (get_next_job_time, is_job_performable,
+                                get_current_job_progress_or_404)
 
 app = Blueprint('user', __name__, template_folder='../templates')
 
@@ -59,8 +59,7 @@ def sync():
 @app.route('/sync/progress', methods=['GET'])
 @api_login_required
 def sync_progress():
-    job = get_current_job_or_404()
-    return jsonify(progress=job.meta.get('progress', 0.0))
+    return jsonify(progress=get_current_job_progress_or_404())
 
 
 @app.route('/sync/next', methods=['GET'])

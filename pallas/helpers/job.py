@@ -9,8 +9,8 @@ from rq.exceptions import NoSuchJobError
 
 
 __all__ = ['get_current_job', 'get_current_job_or_404',
-           'get_current_job_progress', 'get_next_job_time',
-           'is_job_performable']
+           'get_current_job_progress', 'get_current_job_progress_or_404',
+           'get_next_job_time', 'is_job_performable']
 
 
 def get_current_job():
@@ -36,13 +36,28 @@ def get_current_job_or_404():
 def get_current_job_progress():
     '''获取当前任务的进度
 
-    如果当前没有任务在进行，返回 -1
+    如果当前没有任务在进行，返回 None
+    如果当前任务失败，返回 -1
     '''
     job = get_current_job()
     if not job:
+        return None
+    if job.is_failed:
         return -1
 
     return job.meta.get('progress', 0.0)
+
+
+def get_current_job_progress_or_404():
+    '''获取当前任务的进度
+
+    如果当前没有任务在进行，抛出 404
+    如果当前任务失败，返回 -1
+    '''
+    progress = get_current_job_progress()
+    if progress is None:
+        abort(404)
+    return progress
 
 
 def get_next_job_time():
