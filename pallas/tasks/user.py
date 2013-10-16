@@ -3,7 +3,6 @@
 import logging
 from flask import current_app
 from rq import get_current_job
-from time import time
 
 import api
 
@@ -77,11 +76,6 @@ def sync_user(cardno, password):
         personal['history'] = [_h(i) for i in me.history(token, verbose=True)
                                if i['ctrlno'] not in reading_ctrlno]
 
-        # 修改更新时间
-        personal['last_updated'] = time()
-
-        current_app.mongo.db.users.update({'cardno': cardno}, personal,
-                                          upsert=True)
         update_progress(job, 0.3)
 
         # 获取没有记录的图书信息

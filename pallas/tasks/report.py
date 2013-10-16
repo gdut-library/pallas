@@ -4,6 +4,7 @@ import re
 import logging
 from flask import current_app
 from rq import get_current_job
+import time
 
 from api.base import LIBRARY_URL
 
@@ -135,5 +136,11 @@ def generate_report(cardno, password):
         current_app.mongo.db.reports.update({'cardno': cardno}, report,
                                             upsert=True)
         job.meta['progress'] = 1.0
+
+        # 设定下次更新时间
+        # TODO 归类到另一个 job 中，但是要等 rq 0.4.0
+        current_app.mongo.db.users.update({'cardno': cardno}, {
+            '$set': {'last_updated': time.time()}
+        })
 
         return report
