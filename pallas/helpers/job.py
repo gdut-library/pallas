@@ -2,7 +2,7 @@
 
 from time import time
 
-from flask import session, abort, g, current_app
+from flask import abort, g, current_app
 from flask.ext.rq import get_connection
 from rq.job import Job
 from rq.exceptions import NoSuchJobError
@@ -15,7 +15,7 @@ __all__ = ['get_current_job', 'get_current_job_or_404',
 
 def get_current_job():
     '''获取用户当前进行中的同步任务'''
-    job_id = session.get('sync_job', None)
+    job_id = g.user.get('sync_job', None)
     if job_id:
         # use default connection here
         try:

@@ -51,7 +51,9 @@ def sync():
     if form.validate_login():
         cardno, password = form.cardno.data, form.password.data
         job = get_queue('user').enqueue(generate_report, cardno, password)
-        session['sync_job'] = job.id
+        current_app.mongo.db.users.update({'cardno': g.user['cardno']}, {
+            '$set': {'sync_job': job.id}
+        })
         return redirect(url_for('.sync_progress'))
     return render_template('user/sync.html', form=form)
 
