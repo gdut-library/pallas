@@ -6,3 +6,4 @@ flask-wtf
 Flask-PyMongo
 pyisbn
 requests
+fuzzywuzzy

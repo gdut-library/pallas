@@ -10,6 +10,7 @@ from api.base import LIBRARY_URL
 
 from pallas.app import build
 from pallas.utils import parse_isbn
+from pallas.helpers import tags
 
 from .user import sync_user
 
@@ -21,13 +22,8 @@ logger = logging.getLogger('tasks')
 
 
 def calculate_tags(books):
-    '''计算 tag '''
-    # TODO 将类似的 tag 合并
-    tags = {}
-    for book in books:
-        for tag in book['tags']:
-            tags[tag['name']] = tags.get(tag['name'], 0) + tag['count']
-    return tags.items()
+    '''计算标签'''
+    return tags.calculate([i['name'] for book in books for i in books['tags']])
 
 
 def calculate_keywords(books):
