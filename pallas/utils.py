@@ -1,5 +1,7 @@
 #coding: utf-8
 
+from contextlib import contextmanager
+
 import pyisbn
 
 
@@ -20,3 +22,11 @@ def parse_isbn(isbn):
         result = {'isbn10': isbn, 'isbn13': isbn}
 
     return result
+
+
+@contextmanager
+def ignores(*exceptions):
+    try:
+        yield
+    except exceptions:
+        pass
