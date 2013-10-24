@@ -81,7 +81,7 @@ def is_job_performable():
         return False  # 间隔太短
 
     job = get_current_job()
-    if job and job.meta.get('progress', 1) < 1:
+    if job and -1 < job.meta.get('progress', 1) < 1:
         return False  # 当前有任务在执行
 
     return True

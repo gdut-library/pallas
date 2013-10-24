@@ -6,6 +6,7 @@ from flask.ext.rq import get_queue
 
 from pallas.forms.user import LoginForm
 from pallas.tasks import generate_report
+from pallas.helpers import user
 from pallas.helpers.user import LoginRequired, check_login, api_login_required
 from pallas.helpers.job import (get_next_job_time, is_job_performable,
                                 get_current_job_progress_or_404)
@@ -17,10 +18,9 @@ app = Blueprint('user', __name__, template_folder='../templates')
 def init_app():
     # 获取当前登录用户信息
     cardno = session.get('cardno', None)
+    g.user = None
     if cardno and check_login():
         g.user = current_app.mongo.db.users.find_one({'cardno': cardno})
-    else:
-        g.user = None
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -28,8 +28,7 @@ def login():
     form, next = LoginForm(), request.args.get('next', '/')
     cookies = form.validate_login()
     if cookies:
-        session['cardno'] = form.cardno.data
-        session['token'] = cookies.values()[0]
+        g.user = user.login(form.cardno.data, cookies.values()[0])
         return redirect(request.args.get('next', '/'))
     return render_template('user/login.html', form=form, next=next)
 

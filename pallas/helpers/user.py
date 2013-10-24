@@ -1,7 +1,8 @@
 #coding: utf-8
 
+from time import time
 from functools import wraps
-from flask import session, redirect, url_for, abort, g
+from flask import session, redirect, url_for, abort, g, current_app
 
 import api
 
@@ -61,3 +62,21 @@ class ApiLoginRequired(LoginRequired):
         return wrapper
 
 api_login_required = ApiLoginRequired()
+
+
+def login(cardno, token):
+    '''用户登录，返回数据库里的用户实例'''
+
+    # 写入到 session 中
+    session['cardno'] = cardno
+    session['token'] = token
+
+    user = current_app.mongo.db.users.find_one({'cardno': cardno})
+    if not user:  # 用户不存在则创建一个用户
+        interval = current_app.config['TASKS']['user']['update_interval']
+        user = current_app.mongo.db.users.update({'cardno': cardno}, {
+            'cardno': cardno,
+            'last_updated': time() - interval
+        }, upsert=True)
+
+    return user

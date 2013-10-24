@@ -32,8 +32,7 @@ class LoginForm(Form):
         cardno, password = self.cardno.data, self.password.data
         user = api.Me()
         try:
-            cookies = user.login(cardno, password)
-            return cookies
+            return user.login(cardno, password)
         except LibraryChangePasswordError, e:
             self.error = u'需要到 %s 激活帐号' % e.next
         except LibraryLoginError, e:
