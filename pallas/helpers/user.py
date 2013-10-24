@@ -76,6 +76,7 @@ def login(cardno, token):
         interval = current_app.config['TASKS']['user']['update_interval']
         user = current_app.mongo.db.users.update({'cardno': cardno}, {
             'cardno': cardno,
+            'init': True,
             'last_updated': time() - interval
         }, upsert=True)
 

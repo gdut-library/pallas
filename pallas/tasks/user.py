@@ -61,8 +61,11 @@ def sync_user(cardno, password):
 
         # 获取用户信息
         logger.info('fetching user infomations')
-        personal = current_app.mongo.db.users.find_one({'cardno': cardno}) or \
-            me.personal(token)
+        personal = current_app.mongo.db.users.find_one({
+            'cardno': cardno,
+            'init': False  # 如果用户已经获取过个人信息则使用数据库里面的记录
+        }) or me.personal(token)
+        personal['init'] = False  # 已经获取过个人信息
         update_progress(job)
 
         # 获取借阅历史
@@ -75,7 +78,8 @@ def sync_user(cardno, password):
         reading_ctrlno = [i['ctrlno'] for i in personal['reading']]
         personal['history'] = [_h(i) for i in me.history(token, verbose=True)
                                if i['ctrlno'] not in reading_ctrlno]
-
+        current_app.mongo.db.users.update({'cardno': cardno},
+                                          {'$set': personal}, upsert=True)
         update_progress(job, 0.3)
 
         # 获取没有记录的图书信息
@@ -83,6 +87,7 @@ def sync_user(cardno, password):
         for book in personal['reading'] + personal['history']:
             isbn = parse_isbn(book['isbn'])
             if not current_app.mongo.db.books.find(isbn).count():
+                logger.info('fetching book %r' % isbn)
                 sync_book(isbn)
         update_progress(job, 0.5)
 
