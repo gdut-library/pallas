@@ -2,6 +2,7 @@
 
 from contextlib import contextmanager
 
+from werkzeug.debug.tbtools import Traceback
 import pyisbn
 
 
@@ -30,3 +31,8 @@ def ignores(*exceptions):
         yield
     except exceptions:
         pass
+
+
+def get_traceback(*exc_info):
+    '''获取完整的 traceback 信息'''
+    return Traceback(*exc_info).plaintext
