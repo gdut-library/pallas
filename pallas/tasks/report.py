@@ -23,7 +23,7 @@ logger = logging.getLogger('tasks')
 
 def calculate_tags(books):
     '''计算标签'''
-    return tags.calculate([i['name'] for book in books for i in books['tags']])
+    return tags.calculate([i['name'] for book in books for i in book['tags']])
 
 
 def calculate_keywords(books):
