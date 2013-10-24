@@ -65,7 +65,8 @@ def sync_user(cardno, password):
             'cardno': cardno,
             'init': False  # 如果用户已经获取过个人信息则使用数据库里面的记录
         }) or me.personal(token)
-        personal['init'] = False  # 已经获取过个人信息
+        if not personal.pop('_id', True):
+            personal['init'] = False  # 已经获取过个人信息
         update_progress(job)
 
         # 获取借阅历史
