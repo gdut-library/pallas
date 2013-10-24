@@ -1,6 +1,5 @@
 #coding: utf-8
 
-import re
 import logging
 from flask import current_app
 from rq import get_current_job
@@ -10,7 +9,7 @@ from api.base import LIBRARY_URL
 
 from pallas.app import build
 from pallas.utils import parse_isbn
-from pallas.helpers import tags
+from pallas.helpers import tags, keywords
 
 from .user import sync_user
 
@@ -28,47 +27,7 @@ def calculate_tags(books):
 
 def calculate_keywords(books):
     '''计算作者、出版社、价格等关键字'''
-    def _clean_author(author):
-        result = re.compile(u'[\(\[].*[\]\)](.*)').findall(author)
-        if result:
-            author = result[0]
-        return author.strip()
-
-    def _clean_price(price):
-        # TODO 支持更多的货币单位
-        result = re.compile(u'([\d]+\.{0,1}[\d]{0,2}).*').findall(price)
-        if result:
-            price = result[0]
-        try:
-            return ('CNY', float(price))
-        except ValueError:
-            # convert to float
-            return ('CNY', 0.0)
-
-    result = {
-        'authors': [],  # (name, count) pairs
-        'publishers': [],  # (name, count) pairs
-        'price': {
-            'CNY': 0.0,
-        }
-    }
-
-    authors, publishers = {}, {}
-    for book in books:
-        for a in book['author']:
-            a = _clean_author(a)
-            authors[a] = authors.get(a, 0) + 1
-
-        p = book['publisher'] or u'未知出版社'
-        publishers[p] = publishers.get(p, 0) + 1
-
-        m, price = _clean_price(book['price'])
-        result['price'][m] = result['price'].get(m, 0.0) + price
-
-    result['authors'] = authors.items()
-    result['publishers'] = publishers.items()
-
-    return result
+    return keywords.calculate(books)
 
 
 def generate_report(cardno, password):
@@ -125,8 +84,9 @@ def generate_report(cardno, password):
         job.meta['progress'] = 0.8
 
         # 关键字和 tag
-        logger.info('generate keywords & tags')
+        logger.info('generate keywords')
         report['keywords'] = calculate_keywords(all_books)
+        logger.info('generate tags')
         report['tags'] = calculate_tags(all_books)
 
         current_app.mongo.db.reports.update({'cardno': cardno}, report,
